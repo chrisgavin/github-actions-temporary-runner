@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import os
 import pathlib
 import re
 import subprocess
+import urllib.request
 import uuid
-
-import requests
 
 _RUNNER_REGEX = re.compile("^actions-runner-linux-x64-[0-9]+\\.[0-9]+\\.[0-9]+\\.tar\\.gz$")
 _SCRIPT_DIRECTORY = pathlib.Path(__file__).parent
@@ -21,9 +21,10 @@ def _parse_arguments():
 def main():
 	arguments, runner_arguments = _parse_arguments()
 
-	latest_runner_response = requests.get("https://api.github.com/repos/actions/runner/releases/latest")
-	latest_runner_response.raise_for_status()
-	for asset in latest_runner_response.json()["assets"]:
+	latest_runner_request = urllib.request.Request("https://api.github.com/repos/actions/runner/releases/latest")
+	latest_runner_response = urllib.request.urlopen(latest_runner_request)
+	latest_runner_data = json.load(latest_runner_response)
+	for asset in latest_runner_data["assets"]:
 		if _RUNNER_REGEX.match(asset["name"]):
 			runner_url = asset["browser_download_url"]
 			break
