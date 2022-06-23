@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+if [ "${DISABLE_SSL:-}" = "true" ]; then
+	>&2 echo "SSL verification is disabled."
+	export GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
+	export NODE_TLS_REJECT_UNAUTHORIZED=0
+	export GIT_SSL_NO_VERIFY=true
+fi
+./config.sh "$@"
+./run.sh
